@@ -191,3 +191,27 @@ void mupeWebInit() {
 
 }
 
+int find_value(char *key, char *parameter, char *value) {
+	//char * addr1;
+	char *addr1 = strstr(parameter, key);
+	if (addr1 == NULL)
+		return 0;
+	ESP_LOGD(TAG, "addr1=%s", addr1);
+
+	char *addr2 = addr1 + strlen(key);
+	ESP_LOGD(TAG, "addr2=[%s]", addr2);
+
+	char *addr3 = strstr(addr2, "&");
+	ESP_LOGD(TAG, "addr3=%p", addr3);
+	if (addr3 == NULL) {
+		strcpy(value, addr2);
+	} else {
+		int length = addr3 - addr2;
+		ESP_LOGD(TAG, "addr2=%p addr3=%p length=%d", addr2, addr3, length);
+		strncpy(value, addr2, length);
+		value[length] = 0;
+	}
+	ESP_LOGI(TAG, "key=[%s] value=[%s]", key, value);
+	return strlen(value);
+}
+

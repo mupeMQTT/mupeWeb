@@ -31,6 +31,7 @@
 #include <esp_wifi.h>
 
 void addHttpd_uri(httpd_uri_t *httpd_uri, const char *linkTxt);
+int find_value(char *key, char *parameter, char *value);
 void mupeWebInit();
 
 #endif
