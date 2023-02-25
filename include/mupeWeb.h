@@ -30,6 +30,7 @@
 //#include "nvs_flash.h"
 #include <esp_wifi.h>
 
+char* stringReplace(char *search, char *replace, char *string);
 void addHttpd_uri(httpd_uri_t *httpd_uri, const char *linkTxt);
 int find_value(char *key, char *parameter, char *value);
 void mupeWebInit();

@@ -22,6 +22,7 @@
 
 #include "mupeWeb.h"
 #define STARTS_WITH(string_to_check, prefix) (strncmp(string_to_check, prefix, (strlen(prefix))))
+
 static const char *TAG = "example";
 
 static httpd_handle_t server = NULL;
@@ -214,4 +215,40 @@ int find_value(char *key, char *parameter, char *value) {
 	ESP_LOGI(TAG, "key=[%s] value=[%s]", key, value);
 	return strlen(value);
 }
+char* stringReplace(char *search, char *replace, char *string) {
+	char *tempString, *searchStart;
+	int len = 0;
 
+	// preuefe ob Such-String vorhanden ist
+	searchStart = strstr(string, search);
+	while (searchStart != NULL) {
+
+		// Speicher reservieren
+		tempString = (char*) malloc(strlen(string) * sizeof(char));
+		if (tempString == NULL) {
+			return NULL;
+		}
+
+		// temporaere Kopie anlegen
+		strcpy(tempString, string);
+
+		// ersten Abschnitt in String setzen
+		len = searchStart - string;
+		string[len] = '\0';
+
+		// zweiten Abschnitt anhaengen
+		strcat(string, replace);
+
+		// dritten Abschnitt anhaengen
+		len += strlen(search);
+		strcat(string, (char*) tempString + len);
+
+		// Speicher freigeben
+		free(tempString);
+
+		searchStart = strstr(string, search);
+
+	}
+
+	return string;
+}
