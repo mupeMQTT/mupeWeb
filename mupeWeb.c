@@ -23,7 +23,7 @@
 #include "mupeWeb.h"
 #define STARTS_WITH(string_to_check, prefix) (strncmp(string_to_check, prefix, (strlen(prefix))))
 
-static const char *TAG = "example";
+static const char *TAG = "mupeWeb";
 
 static httpd_handle_t server = NULL;
 
@@ -37,6 +37,7 @@ struct Httpd_uri_list {
 Httpd_uri_list *httpd_uri_listP = NULL;
 
 void addHttpd_uri(httpd_uri_t *httpd_uri, const char *linkTxt) {
+	ESP_LOGI(TAG, "addHttpd_uri %s ", linkTxt);
 	Httpd_uri_list *httpd_uri_listL = NULL;
 	httpd_uri_listL = httpd_uri_listP;
 
@@ -94,8 +95,7 @@ esp_err_t root_get_handler(httpd_req_t *req) {
 	return default_get_handler(req);
 }
 
-httpd_uri_t favicon_t = { .uri = "/favicon.ico", .method = HTTP_GET, .handler =
-		favicon_get_handler };
+
 
 void mupeStop_webserver(httpd_handle_t server) {
 	// Stop the httpd server
@@ -134,6 +134,7 @@ httpd_handle_t mupeStart_webserver(void) {
 	ESP_LOGI(TAG, "Starting server");
 
 	httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+	config.max_uri_handlers = 10;
 	config.uri_match_fn = httpd_uri_match_wildcard;
 
 	esp_err_t ret = httpd_start(&server, &config);
@@ -172,7 +173,7 @@ static void connect_handler(void *arg, esp_event_base_t event_base,
 }
 char *faviconTxt = "hhhhh";
 void mupeWebInit() {
-	addHttpd_uri(&favicon_t, faviconTxt);
+//addHttpd_uri(&favicon_t, faviconTxt);
 	server = mupeStart_webserver();
 
 	ESP_ERROR_CHECK(
