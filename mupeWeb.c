@@ -1,4 +1,3 @@
-
 // Copyright Peter Müller mupe
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -62,8 +61,6 @@ void addHttpd_uri(httpd_uri_t *httpd_uri, const char *linkTxt) {
 
 }
 
-
-
 esp_err_t default_get_handler(httpd_req_t *req) {
 	extern const unsigned char mqtt_index_start[] asm("_binary_index_html_start");
 	extern const unsigned char mqtt_index_end[] asm("_binary_index_html_end");
@@ -94,8 +91,6 @@ esp_err_t root_get_handler(httpd_req_t *req) {
 	}
 	return default_get_handler(req);
 }
-
-
 
 void mupeStop_webserver(httpd_handle_t server) {
 	// Stop the httpd server
@@ -213,43 +208,130 @@ int find_value(char *key, char *parameter, char *value) {
 		strncpy(value, addr2, length);
 		value[length] = 0;
 	}
+	stringReplace(value);
 	ESP_LOGI(TAG, "key=[%s] value=[%s]", key, value);
 	return strlen(value);
 }
-char* stringReplace(char *search, char *replace, char *string) {
-	char *tempString, *searchStart;
-	int len = 0;
+char* stringReplace(char *string) {
+	ESP_LOGI(TAG, "Old String ............... %s", string);
 
-	// preuefe ob Such-String vorhanden ist
-	searchStart = strstr(string, search);
-	while (searchStart != NULL) {
+	for (size_t i = 0; i < strlen(string)+1; ++i) {
+		if ((string[i] == '%') & (i < strlen(string) - 2)) {
+			switch (string[i + 1]) {
+			case '2':
+				switch (string[i + 2]) {
+				case '0':
+					string[i]=' ';
+					break;
+				case '1':
+					string[i]='!';
+					break;
+				case '2':
+					string[i]='"';
+					break;
+				case '3':
+					string[i]='#';
+					break;
+				case '4':
+					string[i]='$';
+					break;
+				case '5':
+					string[i]='%';
+					break;
+				case '6':
+					string[i]='&';
+					break;
+				case '7':
+					string[i]='\'';
+					break;
+				case '8':
+					string[i]='(';
+					break;
+				case '9':
+					string[i]=')';
+					break;
+				case 'A':
+					string[i]='*';
+					break;
+				case 'B':
+					string[i]='+';
+					break;
+				case 'C':
+					string[i]=',';
+					break;
+				case 'D':
+					string[i]='-';
+					break;
+				case 'E':
+					string[i]='.';
+					break;
+				case 'F':
+					string[i]='/';
+					break;
+				}
+				break;
+			case '3':
+				switch (string[i + 2]) {
+				case 'A':
+					string[i]=':';
+					break;
+				case 'B':
+					string[i]=';';
+					break;
+				case 'C':
+					string[i]='<';
+					break;
+				case 'D':
+					string[i]='=';
+					break;
+				case 'E':
+					string[i]='>';
+					break;
+				case 'F':
+					string[i]='?';
+					break;
+				}
+				break;
+			case '4':
+				switch (string[i + 2]) {
+				case '0':
+					string[i]='@';
+					break;
+				}
+				break;
+			case '5':
+				switch (string[i + 2]) {
+				case 'B':
+					string[i]='[';
+					break;
+				case 'C':
+					string[i]='\\';
+					break;
+				case 'D':
+					string[i]='[';
+					break;
+				}
+				break;
+			case '7':
+				switch (string[i + 2]) {
+				case 'B':
+					string[i]='{';
+					break;
+				case 'C':
+					string[i]='|';
+					break;
+				case 'D':
+					string[i]='}';
+					break;
+				}
+				break;
 
-		// Speicher reservieren
-		tempString = (char*) malloc(strlen(string) * sizeof(char));
-		if (tempString == NULL) {
-			return NULL;
+			}
+			for (size_t x = i+1; x < (strlen(string) - 1); ++x) {
+				string[x]=string[x+2];
+			}
 		}
-
-		// temporaere Kopie anlegen
-		strcpy(tempString, string);
-
-		// ersten Abschnitt in String setzen
-		len = searchStart - string;
-		string[len] = '\0';
-
-		// zweiten Abschnitt anhaengen
-		strcat(string, replace);
-
-		// dritten Abschnitt anhaengen
-		len += strlen(search);
-		strcat(string, (char*) tempString + len);
-
-		// Speicher freigeben
-		free(tempString);
-
-		searchStart = strstr(string, search);
-
 	}
-
+	ESP_LOGI(TAG, "New String ............... %s", string);
 	return string;
 }
